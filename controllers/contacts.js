@@ -3,12 +3,12 @@ const Contacts = require('../repository/contacts');
 const getContactsList = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const contacts = await Contacts.listContacts(userId, req.query);
+    const data = await Contacts.listContacts(userId, req.query);
     res.json({
       status: 'success',
       code: 200,
       data: {
-        contacts,
+        ...data
       },
     });
   } catch (error) {

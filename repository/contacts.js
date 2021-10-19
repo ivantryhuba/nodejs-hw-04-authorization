@@ -2,10 +2,33 @@ const Contact = require('../model/contact');
 
 const listContacts = async (userId, query) => {
   // const result = await Contact.find({ owner: userId }).populate({path:'owner',select:'name email subscription createdAt'});
-  const { limit = 2, offset = 0 } = query;
+  const { filter,limit, page, sortBy, sortByDesc,isFavorite = null } = query;
   const searchOptions = { owner: userId };
-  const result = await Contact.paginate(searchOptions, {limit, offset});
-  return result;
+
+  if (isFavorite !== null) {
+    console.log(typeof isFavorite)
+    searchOptions.isFavorite = isFavorite;
+  }
+
+  const result = await Contact.paginate(searchOptions, {
+    limit,
+    page,
+    sort: {
+      ...(sortBy ? { [`${sortBy}`]: 1 } : {}),
+      ...(sortByDesc ? { [`${sortByDesc}`]: -1 } : {}),
+    },
+    select: filter?filter.split('|').join(' '):'',
+    populate: {
+      path: 'owner',
+      select: 'name email subscription createdAt',
+    },
+  });
+
+  const { docs: contacts } = result;
+
+  delete result.docs;
+
+  return { ...result, contacts };
 };
 
 const getContactById = async (contactId, userId) => {
@@ -13,6 +36,7 @@ const getContactById = async (contactId, userId) => {
     _id: contactId,
     owner: userId,
   }).populate({ path: 'owner', select: 'name email subscription createdAt' });
+
   return result;
 };
 
@@ -21,11 +45,13 @@ const removeContact = async (contactId, userId) => {
     _id: contactId,
     owner: userId,
   });
+
   return result;
 };
 
 const addContact = async body => {
   const result = await Contact.create(body);
+
   return result;
 };
 
@@ -35,6 +61,7 @@ const updateContact = async (contactId, body, userId) => {
     { ...body },
     { new: true },
   );
+
   return result;
 };
 
