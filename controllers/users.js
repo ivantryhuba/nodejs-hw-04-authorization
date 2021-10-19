@@ -85,11 +85,11 @@ const logout = async (req, res, next) => {
 };
 
 const getCurrentUser = async (req, res, next) => {
-  const id = req.user._id;
+  const { email, subscription } = req.user;
   return res.status(OK).json({
     status: 'success',
     code: OK,
-    data: req.user,
+    data: {email, subscription},
   });
 };
 
