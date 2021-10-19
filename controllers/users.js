@@ -84,8 +84,18 @@ const logout = async (req, res, next) => {
   return res.status(NO_CONTENT).json();
 };
 
+const getCurrentUser = async (req, res, next) => {
+  const id = req.user._id;
+  return res.status(OK).json({
+    status: 'success',
+    code: OK,
+    data: req.user,
+  });
+};
+
 module.exports = {
   registration,
   login,
   logout,
+  getCurrentUser,
 };
